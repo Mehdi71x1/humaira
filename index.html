@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For Humaira Only</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: #f7f0f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .hidden { display: none; }
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background: #ff6f91;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      width: 100%;
+      font-weight: bold;
+    }
+    #uploadProgress {
+      width: 100%;
+      height: 10px;
+      background: #eee;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 10px;
+      display: none;
+    }
+    #uploadBar {
+      width: 0%;
+      height: 100%;
+      background: #ff6f91;
+    }
+    .bottom-button {
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="lockScreen">
+    <h3>This Page is Only for My Love, Humaira ❤️</h3>
+    <input type="password" id="pass" placeholder="Enter Password">
+    <button onclick="unlock()">Unlock</button>
+  </div>
+
+  <div class="container hidden" id="mainContent">
+    <p>Humaira, Is My Life</p>
+    <input type="text" id="message" placeholder="Type your message">
+    <input type="file" id="file">
+    <button onclick="sendData()">Send</button>
+    <div id="uploadProgress">
+      <div id="uploadBar"></div>
+    </div>
+    <p id="status"></p>
+    <div class="bottom-button">
+      <button onclick="location.href='nextpage.html'">Go to Next Page</button>
+    </div>
+  </div>
+
+  <script>
+    function unlock() {
+      const pass = document.getElementById("pass").value;
+      if (pass === "9885") {
+        document.getElementById("lockScreen").classList.add("hidden");
+        document.getElementById("mainContent").classList.remove("hidden");
+      } else {
+        alert("Wrong Password!");
+      }
+    }
+
+    function sendData() {
+      const message = document.getElementById("message").value;
+      const file = document.getElementById("file").files[0];
+      const status = document.getElementById("status");
+      const progress = document.getElementById("uploadProgress");
+      const bar = document.getElementById("uploadBar");
+
+      const botToken = "7757161623:AAGynGndHmAK8b3lIKdQTJkuAbpkgeNBIcA";
+      const chatId = "7135684240";
+
+      if (file) {
+        const formData = new FormData();
+        formData.append("chat_id", chatId);
+        formData.append("document", file);
+        progress.style.display = 'block';
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `https://api.telegram.org/bot${botToken}/sendDocument`, true);
+
+        xhr.upload.onprogress = function(e) {
+          if (e.lengthComputable) {
+            const percent = (e.loaded / e.total) * 100;
+            bar.style.width = percent + "%";
+          }
+        };
+
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            status.textContent = "Send Successful!";
+          } else {
+            status.textContent = "Send Unsuccessful!";
+          }
+        };
+
+        xhr.send(formData);
+      } else if (message.trim() !== "") {
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: chatId, text: message })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) status.textContent = "Send Successful!";
+          else status.textContent = "Send Unsuccessful!";
+        });
+      } else {
+        alert("Please type a message or select a file.");
+      }
+    }
+  </script>
+</body>
+</html>
